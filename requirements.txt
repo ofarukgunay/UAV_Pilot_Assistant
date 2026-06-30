@@ -1,17 +1,42 @@
-# ============================================
-# IHA Pilot Asistani - Python Bagimliliklar
-# ============================================
+# ============================================================
+# IHA Pilot Asistanı — Python Bağımlılıkları
+# ============================================================
 # Kurulum: pip install -r requirements.txt
+# Python >= 3.10 gereklidir.
+#
+# Bağımlılık Grupları:
+#   [1] LLM Entegrasyonu
+#   [2] Web Arayüzü
+#   [3] CLI ve Terminal Arayüzü
+#   [4] Test Altyapısı
+#   [5] Loglama ve Yardımcı Araçlar
 
-# LLM API (kullanacaginiz birine gore secin)
+# --- [1] LLM Entegrasyonu ---
+# Ollama için yalnızca 'requests' gerekli (yerel API çağrısı)
+requests>=2.31.0
+
+# OpenAI fallback (isteğe bağlı — .env'de OPENAI_API_KEY tanımlıysa aktif olur)
 openai>=1.30.0
-# google-generativeai>=0.5.0
 
-# Ortam degiskenleri
+# Ortam değişkenleri yükleme
 python-dotenv>=1.0.0
 
-# Test
-pytest>=8.0.0
+# --- [2] Web Arayüzü (Dashboard) ---
+flask>=3.0.0
+flask-socketio>=5.3.6
+flask-cors>=4.0.0
 
-# CLI arayuzu (opsiyonel, guzel terminal ciktisi icin)
-# rich>=13.0.0
+# WebSocket sunucu (Flask-SocketIO için)
+eventlet>=0.35.0
+
+# --- [3] CLI ve Terminal Arayüzü ---
+# Renkli, zengin terminal çıktısı
+rich>=13.7.0
+
+# --- [4] Test Altyapısı ---
+pytest>=8.0.0
+pytest-html>=4.1.1
+pytest-cov>=4.1.0
+
+# --- [5] Yardımcı Araçlar ---
+python-dateutil>=2.8.2
