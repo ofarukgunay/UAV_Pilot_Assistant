@@ -149,7 +149,9 @@ class WebConfig:
     HOST: str = "127.0.0.1"
     PORT: int = 5000
     DEBUG: bool = False
-    SECRET_KEY: str = "iha-pilot-asistani-secret-2024"
+    SECRET_KEY: str = field(
+        default_factory=lambda: os.getenv("FLASK_SECRET_KEY", "change-me-in-production")
+    )
     TELEMETRY_PUSH_INTERVAL: float = 1.0  # saniye (WebSocket güncelleme aralığı)
 
 
