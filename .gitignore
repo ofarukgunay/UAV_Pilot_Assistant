@@ -27,16 +27,18 @@ env/
 logs/*.json
 logs/*.csv
 logs/*.log
+logs/*.html
 !logs/.gitkeep
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Test
+# Test / Coverage
 .pytest_cache/
 htmlcov/
 .coverage
+*.junit.xml
 
 # Proje dokümanı (repo'ya eklenmez)
 *.docx
