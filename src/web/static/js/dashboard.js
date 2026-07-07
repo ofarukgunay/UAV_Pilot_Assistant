@@ -13,15 +13,16 @@
 'use strict';
 
 // ── Sabitler ──────────────────────────────────────────────────────────────
-const HOME_LAT  = 39.9334;   // Ankara simülasyon referansı
-const HOME_LNG  = 32.8597;
+// ── Sabitler ──────────────────────────────────────────────────────────────
+let HOME_LAT  = 39.9334;   // Varsayılan Ankara referansı
+let HOME_LNG  = 32.8597;
 const M_PER_LAT = 111320;    // 1 derece enlem ≈ 111320 metre
 
 // ── Durum ─────────────────────────────────────────────────────────────────
 let logCount = 0;
 let stats = { total: 0, success: 0, safety_rejected: 0, clarified: 0 };
 let droneMarker = null;
-let homemarker  = null;
+let homeMarker  = null;
 let droneTrail  = [];
 let trailPolyline = null;
 let map = null;
@@ -65,6 +66,30 @@ function initMap() {
     opacity: 0.6,
     dashArray: '3 3',
   }).addTo(map);
+
+  // Tarayıcıdan canlı konumu iste (Kullanıcı izin verirse harita oraya güncellenir)
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        HOME_LAT = position.coords.latitude;
+        HOME_LNG = position.coords.longitude;
+
+        // Harita konumunu ve işaretçileri güncelle
+        map.setView([HOME_LAT, HOME_LNG], 17);
+        homeMarker.setLatLng([HOME_LAT, HOME_LNG]);
+        droneMarker.setLatLng([HOME_LAT, HOME_LNG]);
+        
+        // Göstergeyi güncelle
+        document.getElementById('map-coord').textContent =
+          `${HOME_LAT.toFixed(5)}°N  ${HOME_LNG.toFixed(5)}°E`;
+          
+        showToast('📍 Canlı konum algılandı. Harita güncellendi.', 'success');
+      },
+      (error) => {
+        console.log('Canlı konum alınamadı, Ankara varsayılan olarak kalıyor.', error);
+      }
+    );
+  }
 }
 
 function createDroneMarker(lat, lng, heading, altitude) {
