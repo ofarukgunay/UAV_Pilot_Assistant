@@ -79,7 +79,7 @@ class TestMissionPlanner:
     """MissionPlanner testleri."""
 
     def test_valid_mission_created(self, mission_planner, fresh_state):
-        """Geçerli tekli kalkış görevi oluşturulabilmeli."""
+        """Gecerli tekli kalkis gorevi olusturulabilmeli."""
         steps = [
             {"action": "takeoff", "parameters": {"target_altitude": 30.0}},
             {"action": "get_telemetry", "parameters": {}},
@@ -102,17 +102,17 @@ class TestMissionPlanner:
         assert mission.mission_id.startswith("MSN-")
 
     def test_invalid_mission_detected(self, mission_planner, fresh_state):
-        """Havada olmadan go_to → planlama reddi."""
+        """Yerde RTH komutuyla baslayan gorev reddedilmeli."""
         steps = [
-            {"action": "go_to", "parameters": {"x": 100, "y": 100, "altitude": 30}},
+            {"action": "return_to_home", "parameters": {}},
         ]
-        mission, err = mission_planner.create_mission("Hatalı", steps, fresh_state)
-        # Drone yerde, go_to başarısız (SR-FLT-001 veya araç kısıtı)
-        # Mission oluşturulabilir ama adım FAILED olabilir
-        assert mission is None or (mission is not None)  # Her iki durum da geçerli
+        # Drone yerde, RTH gecersiz (SR-FLT-002)
+        mission, err = mission_planner.create_mission("Hatali", steps, fresh_state)
+        assert mission is None
+        assert len(err) > 0
 
     def test_empty_steps_returns_error(self, mission_planner, fresh_state):
-        mission, err = mission_planner.create_mission("Boş", [], fresh_state)
+        mission, err = mission_planner.create_mission("Bos", [], fresh_state)
         assert mission is None
         assert len(err) > 0
 

@@ -218,40 +218,45 @@ class MissionPlanner:
             initial_state: Mevcut drone durumu.
 
         Returns:
-            tuple[Optional[Mission], str]: (görev veya None, hata mesajı)
+            tuple[Optional[Mission], str]: (gorev veya None, hata mesaji)
+
+        Dogrulama Stratejisi:
+            Yalnizca ILK adim anlik duruma gore kontrol edilir.
+            Sonraki adimlarin gecerliligi onceki adimlarin sonucuna baglidir
+            (orn: RTH yalnizca kalkistan sonra gecerli). Bu nedenle
+            sonraki adimlar yurutme zamaninda MissionExecutor tarafindan
+            kontrol edilir.
         """
         if not raw_steps:
-            return None, "Boş görev planı — en az 1 adım gerekli."
+            return None, "Bos gorev plani - en az 1 adim gerekli."
 
         self._mission_counter += 1
         mission_id = f"MSN-{self._mission_counter:04d}"
 
-        # Adımları toplu doğrula
-        commands = [
-            {"action": s.get("action", ""), "parameters": s.get("parameters", {})}
-            for s in raw_steps
-        ]
-        validation_results = self._validator.validate_batch(commands, initial_state)
+        # Yalnizca ilk adimi anlik duruma gore dogrula
+        first = raw_steps[0]
+        first_validation = self._validator.validate(
+            first.get("action", ""),
+            first.get("parameters", {}),
+            initial_state,
+        )
 
-        steps = []
-        for i, (raw, val) in enumerate(zip(raw_steps, validation_results)):
-            step = MissionStep(
-                step_index=i,
-                action=raw.get("action", ""),
-                parameters=raw.get("parameters", {}),
+        if not first_validation.is_valid and first_validation.severity.value in ("ERROR", "CRITICAL"):
+            return None, (
+                f"Gorev plani ilk adim kontrolunden gecemedi: "
+                f"{first_validation.rule_violated} - "
+                f"{first_validation.violation_detail}"
             )
-            if not val.is_valid:
-                step.status = StepStatus.FAILED
-                step.result_message = (
-                    f"Planlama reddi — {val.rule_violated}: {val.violation_detail}"
-                )
-            steps.append(step)
 
-        # Herhangi bir adım kritik ihlalle başarısızsa plan reddedilir
-        failed = [s for s in steps if s.status == StepStatus.FAILED]
-        if failed:
-            fail_msg = " | ".join(s.result_message for s in failed)
-            return None, f"Görev planı güvenlik kontrolünden geçemedi:\n{fail_msg}"
+        # Tum adimlari PENDING olarak olustur; yurutme sirasinda kontrol edilecek
+        steps = [
+            MissionStep(
+                step_index=i,
+                action=s.get("action", ""),
+                parameters=s.get("parameters", {}),
+            )
+            for i, s in enumerate(raw_steps)
+        ]
 
         mission = Mission(
             mission_id=mission_id,
