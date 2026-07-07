@@ -26,11 +26,23 @@ Sistem Başlatma Sırası:
 from __future__ import annotations
 
 import argparse
+import io
 import logging
+import os
 import sys
 import time
 import uuid
 from pathlib import Path
+
+# Windows terminal UTF-8 zorlaması (cp1254 / emoji hatası önleme)
+if sys.platform == "win32":
+    sys.stdout = io.TextIOWrapper(
+        sys.stdout.buffer, encoding="utf-8", errors="replace"
+    )
+    sys.stderr = io.TextIOWrapper(
+        sys.stderr.buffer, encoding="utf-8", errors="replace"
+    )
+    os.environ.setdefault("PYTHONIOENCODING", "utf-8")
 
 # Proje kökünü Python path'ine ekle
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -70,7 +82,7 @@ logging.basicConfig(
     ],
 )
 
-console = Console() if RICH_AVAILABLE else None
+console = Console(file=sys.stdout) if RICH_AVAILABLE else None
 
 
 def _print(msg: str, style: str = "") -> None:

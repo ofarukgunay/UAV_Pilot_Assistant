@@ -167,3 +167,29 @@ class TestToolResultStructure:
         assert "success" in d
         assert "action" in d
         assert "state_after" in d
+
+
+class TestEmergencyActions:
+    def test_emergency_land_works_airborne(self, airborne_tools):
+        result = airborne_tools.emergency_land()
+        assert result.success is True
+        assert airborne_tools.state.in_air is False
+        assert airborne_tools.state.mode == FlightMode.EMERGENCY
+
+    def test_emergency_land_on_ground_fails(self, drone_tools):
+        result = drone_tools.emergency_land()
+        assert result.success is False
+
+    def test_motor_stop_in_air_causes_drop(self, airborne_tools):
+        initial_alt = airborne_tools.state.altitude
+        result = airborne_tools.motor_stop()
+        assert result.success is True
+        assert airborne_tools.state.altitude == 0.0
+        assert airborne_tools.state.in_air is False
+        assert "yere çakıldı" in result.message.lower() or "düşüş" in result.message.lower()
+
+    def test_motor_stop_on_ground(self, drone_tools):
+        result = drone_tools.motor_stop()
+        assert result.success is True
+        assert "motorlar kapatıldı" in result.message.lower()
+

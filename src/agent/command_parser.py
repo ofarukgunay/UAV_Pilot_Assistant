@@ -33,6 +33,7 @@ from src.agent.llm_client import ParsedCommand
 from src.safety.validator import SafetyValidator, ValidationResult
 from src.tools.drone_tools import DroneTools, ToolResult
 from src.simulation.drone import DroneState
+from config.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -104,6 +105,7 @@ class CommandParser:
     ) -> None:
         self._tools = tools
         self._validator = validator
+        self._pending_critical_action: Optional[ParsedCommand] = None
 
     @property
     def state(self) -> DroneState:
@@ -124,7 +126,7 @@ class CommandParser:
         Returns:
             ExecutionResult: Tam yürütme sonucu.
         """
-        # ── Özel durumlar: clarify / reject ──────────────────────────────
+        # ── Özel durumlar: clarify / reject / confirm ────────────────────
         if cmd.action == "clarify":
             return ExecutionResult(
                 user_input=user_input,
@@ -146,6 +148,57 @@ class CommandParser:
                 ),
                 success=False,
             )
+
+        # ── Kritik İşlem Teyidi ──────────────────────────────────────────
+        critical_actions = settings.safety.CRITICAL_CONFIRM_ACTIONS
+        is_confirm = any(word in user_input.lower() for word in ["evet", "onay", "onayla", "onaylıyorum", "yes", "confirm", "y"])
+
+        if self._pending_critical_action and is_confirm:
+            confirmed_cmd = self._pending_critical_action
+            self._pending_critical_action = None
+
+            validation = self._validator.validate(
+                confirmed_cmd.action,
+                confirmed_cmd.parameters,
+                self._tools.state,
+            )
+            if not validation.is_valid:
+                return ExecutionResult(
+                    user_input=user_input,
+                    parsed_command=confirmed_cmd,
+                    validation=validation,
+                    final_message=validation.format_for_user(),
+                    success=False,
+                )
+
+            tool_result = self._dispatch(confirmed_cmd)
+            final_msg = tool_result.message if tool_result else "Komut işlendi."
+            return ExecutionResult(
+                user_input=user_input,
+                parsed_command=confirmed_cmd,
+                validation=validation,
+                tool_result=tool_result,
+                final_message=f"✅ [TEYİT EDİLDİ] {final_msg}",
+                success=tool_result.success if tool_result else False,
+            )
+
+        if cmd.action in critical_actions:
+            if not any(word in user_input.lower() for word in ["onayla", "onaylıyorum", "confirm", "force"]):
+                self._pending_critical_action = cmd
+                action_tr = "ACİL İNİŞ" if cmd.action == "emergency_land" else "MOTORLARI DURDURMA"
+                return ExecutionResult(
+                    user_input=user_input,
+                    parsed_command=cmd,
+                    final_message=(
+                        f"⚠️ GÜVENLİK UYARISI: KRİTİK İŞLEM\n"
+                        f"   Eylem: {action_tr} ({cmd.action})\n"
+                        f"   👉 Devam etmek için lütfen onaylayın: 'evet' veya 'onayla' yazın."
+                    ),
+                    success=False,
+                )
+
+        # Eğer kritik işlem bekliyorsa ama yeni ve alakasız bir komut geldiyse teyidi iptal et
+        self._pending_critical_action = None
 
         # ── Güvenlik Doğrulaması ─────────────────────────────────────────
         validation = self._validator.validate(
@@ -206,6 +259,8 @@ class CommandParser:
             ),
             "land": lambda: self._tools.land(),
             "return_to_home": lambda: self._tools.return_to_home(),
+            "emergency_land": lambda: self._tools.emergency_land(),
+            "motor_stop": lambda: self._tools.motor_stop(),
             "go_to": lambda: self._tools.go_to(
                 float(p.get("x", 0.0)),
                 float(p.get("y", 0.0)),

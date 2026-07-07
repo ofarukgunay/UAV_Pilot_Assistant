@@ -418,3 +418,72 @@ class DroneTools:
                 "transit_time_s": round(transit_time, 1),
             },
         )
+
+    def emergency_land(self) -> ToolResult:
+        """Acil iniş manevrası (hızlı alçalma)."""
+        state_before = self._state.clone()
+        if not self._state.in_air:
+            return ToolResult(
+                success=False,
+                action="emergency_land",
+                message="❌ Acil iniş reddedildi: Araç zaten yerde.",
+                state_before=state_before,
+                state_after=self._state.clone(),
+            )
+
+        new_state = self._state.clone()
+        new_state.altitude = 0.0
+        new_state.mode = FlightMode.EMERGENCY
+        new_state.in_air = False
+        new_state.speed = 0.0
+        new_state.vertical_speed = 0.0
+        new_state.battery = max(0.0, new_state.battery - 1.0)
+
+        if new_state.flight_start_time:
+            new_state.total_flight_time += time.time() - new_state.flight_start_time
+            new_state.flight_start_time = None
+
+        new_state.last_update = time.time()
+        self._update_state(new_state)
+
+        return ToolResult(
+            success=True,
+            action="emergency_land",
+            message="⚠️ ACİL İNİŞ TAMAMLANDI! Uçuş modu acil durum olarak işaretlendi.",
+            state_before=state_before,
+            state_after=new_state.clone(),
+        )
+
+    def motor_stop(self) -> ToolResult:
+        """Motorları anında acil stop etme (havadaysa drone düşer)."""
+        state_before = self._state.clone()
+        new_state = self._state.clone()
+        new_state.altitude = 0.0
+        new_state.mode = FlightMode.IDLE
+        new_state.in_air = False
+        new_state.speed = 0.0
+        new_state.vertical_speed = 0.0
+
+        if new_state.flight_start_time:
+            new_state.total_flight_time += time.time() - new_state.flight_start_time
+            new_state.flight_start_time = None
+
+        new_state.last_update = time.time()
+        self._update_state(new_state)
+
+        was_in_air = state_before.in_air
+        msg = (
+            "⚠️ MOTORLAR ACİL DÜŞÜŞ İLE KAPATILDI! Araç yere çakıldı!"
+            if was_in_air else
+            "✅ Motorlar kapatıldı."
+        )
+
+        return ToolResult(
+            success=True,
+            action="motor_stop",
+            message=msg,
+            state_before=state_before,
+            state_after=new_state.clone(),
+            data={"fell_from_altitude": state_before.altitude if was_in_air else 0.0},
+        )
+

@@ -84,6 +84,16 @@ AVAILABLE ACTIONS (kullanılabilir eylemler):
    Amaç: Güvenlik/mantık açısından uygulanamaz komutu reddet
    Parametreler: {} (parametre yok)
    Kullan: Kapsam dışı (hava durumu, yemek siparişi vb.) veya açıkça tehlikeli
+
+9. emergency_land
+   Amaç: Acil iniş yap (aşırı kritik, teyit gerektirir)
+   Parametreler: {}
+   Örnek tetikleyici: "acil iniş yap", "acil iniş", "hemen yere in"
+
+10. motor_stop
+    Amaç: Motorları anında kapat (aşırı kritik, drone düşer, teyit gerektirir)
+    Parametreler: {}
+    Örnek tetikleyici: "motorları durdur", "motor stop", "motor kilitle"
 """
 
 # ---------------------------------------------------------------------------

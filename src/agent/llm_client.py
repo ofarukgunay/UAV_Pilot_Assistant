@@ -84,6 +84,7 @@ class ParsedCommand:
         "get_telemetry", "takeoff", "land",
         "return_to_home", "go_to",
         "plan_mission", "clarify", "reject",
+        "emergency_land", "motor_stop",
     })
 
     @property

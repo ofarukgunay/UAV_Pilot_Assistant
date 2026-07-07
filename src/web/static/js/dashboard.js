@@ -42,14 +42,13 @@ function initMap() {
   // Başlangıç (Home) işareti
   const homeIcon = L.divIcon({
     html: `<div style="
-      width:16px;height:16px;
-      background:#00d4ff;
+      width:14px;height:14px;
+      background:#3b82f6;
       border:2px solid white;
       border-radius:50%;
-      box-shadow:0 0 8px #00d4ff;
     "></div>`,
     className: '',
-    iconAnchor: [8, 8],
+    iconAnchor: [7, 7],
   });
   homeMarker = L.marker([HOME_LAT, HOME_LNG], { icon: homeIcon })
     .addTo(map)
@@ -61,26 +60,25 @@ function initMap() {
 
   // İz çizgisi
   trailPolyline = L.polyline([], {
-    color: '#00d4ff',
-    weight: 1.5,
-    opacity: 0.5,
-    dashArray: '4 4',
+    color: '#3b82f6',
+    weight: 2,
+    opacity: 0.6,
+    dashArray: '3 3',
   }).addTo(map);
 }
 
 function createDroneMarker(lat, lng, heading, altitude) {
   const icon = L.divIcon({
     html: `<div style="
-      width:24px;height:24px;
-      background:${altitude > 0 ? '#22c55e' : '#64748b'};
+      width:20px;height:20px;
+      background:${altitude > 0 ? '#10b981' : '#475569'};
       border:2px solid white;
       border-radius:50% 50% 50% 0;
       transform:rotate(${heading - 45}deg);
-      box-shadow:0 0 10px ${altitude > 0 ? '#22c55e' : '#64748b'};
-      transition:all 0.5s ease;
+      transition:all 0.3s ease;
     "></div>`,
     className: '',
-    iconAnchor: [12, 12],
+    iconAnchor: [10, 10],
   });
 
   if (droneMarker) {
@@ -150,6 +148,9 @@ function updateTelemetry(data) {
 
   droneMarker = createDroneMarker(lat, lng, kin.heading, pos.altitude);
   droneMarker.addTo(map);
+
+  // Haritayı drone konumuna ortala
+  map.panTo([lat, lng]);
 
   // İz güncelleme
   droneTrail.push([lat, lng]);

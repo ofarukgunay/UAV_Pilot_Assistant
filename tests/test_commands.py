@@ -145,3 +145,39 @@ class TestExecutionResultStructure:
         cmd = make_cmd("get_telemetry")
         result = parser.execute("benim komutum", cmd)
         assert result.user_input == "benim komutum"
+
+
+class TestCommandParserCriticalConfirmation:
+    def test_critical_action_initially_rejected_demanding_confirmation(self, airborne_parser):
+        """Kritik işlem ilk seferde teyit uyarısıyla engellenmeli."""
+        cmd = make_cmd("motor_stop")
+        result = airborne_parser.execute("motorları durdur", cmd)
+        assert result.success is False
+        assert "GÜVENLİK UYARISI" in result.final_message
+        assert "devam etmek için" in result.final_message.lower()
+        # parser içinde pending critical action kurulmalı
+        assert airborne_parser._pending_critical_action == cmd
+
+    def test_critical_action_executes_after_confirmation(self, airborne_parser):
+        """Kritik işlem teyit edildiğinde çalışmalı."""
+        cmd = make_cmd("motor_stop")
+        # İlk komut: uyarı verir
+        airborne_parser.execute("motorları durdur", cmd)
+        # İkinci komut: 'evet' gelince yürütür
+        result = airborne_parser.execute("evet", cmd)
+        assert result.success is True
+        assert "TEYİT EDİLDİ" in result.final_message
+        assert airborne_parser._pending_critical_action is None
+        assert airborne_parser.state.in_air is False
+
+    def test_critical_action_cancelled_on_other_command(self, airborne_parser):
+        """Başka bir komut gelince kritik işlem teyidi iptal edilmeli."""
+        cmd_stop = make_cmd("motor_stop")
+        airborne_parser.execute("motorları durdur", cmd_stop)
+        
+        # Araya başka bir komut giriyor
+        cmd_telemetry = make_cmd("get_telemetry")
+        airborne_parser.execute("durum nedir", cmd_telemetry)
+        
+        assert airborne_parser._pending_critical_action is None
+
