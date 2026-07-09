@@ -1,10 +1,10 @@
-# 🚀 Geliştirici Talimatları — IHA Pilot Asistanı
+# Geliştirici Talimatları — IHA Pilot Asistanı
 
 Bu dosya, projeye yeni başlayan bir geliştiricinin adım adım yapması gerekenleri açıklar.
 
 ---
 
-## 📋 Ön Gereksinimler
+## Ön Gereksinimler
 
 Projeye başlamadan önce aşağıdakilerin bilgisayarında kurulu olduğundan emin ol:
 
@@ -78,7 +78,7 @@ Bu proje bir büyük dil modeli (LLM) kullanır. Aşağıdaki seçeneklerden bir
 2. Bir model indir: `ollama pull llama3`
 3. `.env` dosyasında `OLLAMA_BASE_URL` ve `OLLAMA_MODEL` satırlarını aktifleştir
 
-> 💡 **Hangisini seçmeliyim?**
+>    **Hangisini seçmeliyim?**
 > - Hızlı başlamak istiyorsan → **OpenAI** (ücretli ama en kolay)
 > - Ücretsiz istiyorsan → **Ollama** (bilgisayarın güçlü olmalı, en az 8GB RAM)
 > - Google ekosistemini tercih ediyorsan → **Gemini**
@@ -91,27 +91,27 @@ Koda başlamadan önce proje yapısını anla:
 
 ```
 src/
-├── main.py              # 🚪 Buradan başla! Ana giriş noktası.
+├── main.py              #  Buradan başla! Ana giriş noktası.
 │
-├── simulation/          # 🛩️ Drone simülasyonu
-│   ├── drone.py         #    Drone durumu (konum, irtifa, batarya vb.)
-│   ├── environment.py   #    Simülasyon ortamı ve fizik kuralları
-│   └── telemetry.py     #    Telemetri okuma sistemi
+├── simulation/          #  Drone simülasyonu
+│   ├── drone.py         #  Drone durumu (konum, irtifa, batarya vb.)
+│   ├── environment.py   #  Simülasyon ortamı ve fizik kuralları
+│   └── telemetry.py     #  Telemetri okuma sistemi
 │
-├── agent/               # 🤖 LLM Agent katmanı
-│   ├── llm_client.py    #    LLM API ile iletişim
-│   ├── command_parser.py #   Kullanıcı komutunu yapılandırılmış göreve çevirme
-│   └── prompts.py       #    System/User prompt şablonları
+├── agent/               #  LLM Agent katmanı
+│   ├── llm_client.py    #  LLM API ile iletişim
+│   ├── command_parser.py # Kullanıcı komutunu yapılandırılmış göreve çevirme
+│   └── prompts.py       #  System/User prompt şablonları
 │
-├── tools/               # 🔧 Güvenli araç fonksiyonları
-│   └── drone_tools.py   #    get_telemetry, takeoff, land, return_to_home
+├── tools/               #  Güvenli araç fonksiyonları
+│   └── drone_tools.py   #  get_telemetry, takeoff, land, return_to_home
 │
-├── safety/              # 🛡️ Güvenlik katmanı
-│   ├── validator.py     #    Komut doğrulama mantığı
-│   └── rules.py         #    Güvenlik kuralları (max irtifa, yasak komutlar vb.)
+├── safety/              #  Güvenlik katmanı
+│   ├── validator.py     #  Komut doğrulama mantığı
+│   └── rules.py         #  Güvenlik kuralları (max irtifa, yasak komutlar vb.)
 │
-└── logger/              # 📝 Kayıt sistemi
-    └── flight_logger.py #    JSON/CSV formatında log tutma
+└── logger/              #  Kayıt sistemi
+    └── flight_logger.py #  JSON/CSV formatında log tutma
 ```
 
 ---
@@ -173,7 +173,7 @@ git checkout -b feature/safety        # Güvenlik katmanı geliştirirken
 
 ---
 
-## 📦 Teslim Kontrol Listesi
+##  Teslim Kontrol Listesi
 
 Projeyi teslim etmeden önce aşağıdakilerin tamamlandığından emin ol:
 
@@ -187,7 +187,7 @@ Projeyi teslim etmeden önce aşağıdakilerin tamamlandığından emin ol:
 
 ---
 
-## ❓ Sık Sorulan Sorular
+##  Sık Sorulan Sorular
 
 **S: Simülasyon olarak ne kullanmalıyım?**
 Python ile kendi yazdığın basit bir simülasyon yeterli. PX4/Gazebo/AirSim gibi karmaşık ortamlar isteğe bağlı.
