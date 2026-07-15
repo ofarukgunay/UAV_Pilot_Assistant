@@ -72,10 +72,12 @@ class TestCommandParserTakeoff:
         assert result.validation is not None
         assert not result.validation.is_valid
 
-    def test_takeoff_when_airborne_rejected(self, airborne_parser):
+    def test_takeoff_when_airborne_translates_to_goto(self, airborne_parser):
         cmd = make_cmd("takeoff", target_altitude=80.0)
         result = airborne_parser.execute("tekrar kalk", cmd)
-        assert result.success is False
+        assert result.success is True
+        assert result.parsed_command.action == "go_to"
+        assert result.parsed_command.parameters["altitude"] == 80.0
 
 
 class TestCommandParserLand:
@@ -105,6 +107,34 @@ class TestCommandParserGoTo:
         cmd = make_cmd("go_to", x=50.0, y=50.0, altitude=30.0)
         result = parser.execute("50,50 git", cmd)
         assert result.success is False
+
+    def test_goto_defaults_coordinates_to_current_state(self, airborne_parser):
+        # Set drone state current coordinates to something non-zero
+        airborne_parser.state.x = 42.0
+        airborne_parser.state.y = 84.0
+        # Send go_to with only altitude parameter
+        cmd = make_cmd("go_to", altitude=50.0)
+        result = airborne_parser.execute("50m yüksel", cmd)
+        assert result.success is True
+        assert airborne_parser.state.x == 42.0
+        assert airborne_parser.state.y == 84.0
+        assert airborne_parser.state.altitude == 50.0
+
+    def test_relative_altitude_change_takeoff(self, parser):
+        # Drone initially on ground, alt=0.0
+        assert parser.state.altitude == 0.0
+        cmd = make_cmd("takeoff", altitude_change=15.0)
+        result = parser.execute("15m yüksel", cmd)
+        assert result.success is True
+        assert parser.state.altitude == 15.0
+
+    def test_relative_altitude_change_goto(self, airborne_parser):
+        # Airborne parser initially at alt=30.0 (default in airborne_parser fixture)
+        initial_alt = airborne_parser.state.altitude
+        cmd = make_cmd("go_to", altitude_change=20.0)
+        result = airborne_parser.execute("20m daha yüksel", cmd)
+        assert result.success is True
+        assert airborne_parser.state.altitude == initial_alt + 20.0
 
 
 class TestCommandParserRTH:
@@ -180,4 +210,16 @@ class TestCommandParserCriticalConfirmation:
         airborne_parser.execute("durum nedir", cmd_telemetry)
         
         assert airborne_parser._pending_critical_action is None
+
+    def test_substring_not_matched_as_confirmation(self, airborne_parser):
+        """Metni 'y' veya 'onay' kelimesinin alt dizisini içeren alakasız komutlar teyit olarak algılanmamalı."""
+        cmd_stop = make_cmd("motor_stop")
+        airborne_parser.execute("motorları durdur", cmd_stop)
+        assert airborne_parser._pending_critical_action == cmd_stop
+
+        # "metreye" kelimesinde "y" harfi bulunur, ancak teyit olmamalıdır
+        cmd_takeoff = make_cmd("takeoff", target_altitude=30.0)
+        result = airborne_parser.execute("30 metreye kalk", cmd_takeoff)
+        assert result.success is True
+        assert airborne_parser._pending_critical_action is None  # Yeni alakasız komut teyidi sıfırladı
 

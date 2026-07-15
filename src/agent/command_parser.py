@@ -126,32 +126,10 @@ class CommandParser:
         Returns:
             ExecutionResult: Tam yürütme sonucu.
         """
-        # ── Özel durumlar: clarify / reject / confirm ────────────────────
-        if cmd.action == "clarify":
-            return ExecutionResult(
-                user_input=user_input,
-                parsed_command=cmd,
-                final_message=(
-                    f"Açıklama gerekiyor\n"
-                    f"   {cmd.clarification_question}"
-                ),
-                success=False,
-            )
-
-        if cmd.action == "reject":
-            return ExecutionResult(
-                user_input=user_input,
-                parsed_command=cmd,
-                final_message=(
-                    f"Komut reddedildi\n"
-                    f"   Gerekçe: {cmd.reasoning}"
-                ),
-                success=False,
-            )
-
         # ── Kritik İşlem Teyidi ──────────────────────────────────────────
-        critical_actions = settings.safety.CRITICAL_CONFIRM_ACTIONS
-        is_confirm = any(word in user_input.lower() for word in ["evet", "onay", "onayla", "onaylıyorum", "yes", "confirm", "y"])
+        cleaned_input = "".join(c for c in user_input.lower() if c.isalnum() or c.isspace())
+        words = cleaned_input.split()
+        is_confirm = any(w in words for w in ["evet", "onay", "onayla", "onaylıyorum", "yes", "confirm", "y"])
 
         if self._pending_critical_action and is_confirm:
             confirmed_cmd = self._pending_critical_action
@@ -182,8 +160,59 @@ class CommandParser:
                 success=tool_result.success if tool_result else False,
             )
 
+        # ── Özel durumlar: clarify / reject / confirm ────────────────────
+        if cmd.action == "clarify":
+            return ExecutionResult(
+                user_input=user_input,
+                parsed_command=cmd,
+                final_message=(
+                    f"Açıklama gerekiyor\n"
+                    f"   {cmd.clarification_question}"
+                ),
+                success=False,
+            )
+
+        if cmd.action == "reject":
+            return ExecutionResult(
+                user_input=user_input,
+                parsed_command=cmd,
+                final_message=(
+                    f"Komut reddedildi\n"
+                    f"   Gerekçe: {cmd.reasoning}"
+                ),
+                success=False,
+            )
+
+        # ── Bağıl/Göreceli İrtifa Değişimi Desteği ──────────────────────────
+        if "altitude_change" in cmd.parameters:
+            try:
+                change = float(cmd.parameters["altitude_change"])
+                if cmd.action == "takeoff":
+                    cmd.parameters["target_altitude"] = self.state.altitude + change
+                elif cmd.action == "go_to":
+                    cmd.parameters["altitude"] = self.state.altitude + change
+            except (ValueError, TypeError):
+                pass
+
+        # Eğer araç zaten havadaysa ve kalkış (takeoff) komutu geldiyse, bunu go_to (irtifa güncelleme) olarak yorumla
+        if cmd.action == "takeoff" and self.state.in_air:
+            target_alt = float(cmd.parameters.get("target_altitude", 30.0))
+            cmd = ParsedCommand(
+                action="go_to",
+                parameters={
+                    "x": self.state.x,
+                    "y": self.state.y,
+                    "altitude": target_alt
+                },
+                reasoning=f"İHA zaten havada olduğundan kalkış komutu irtifa güncelleme (go_to) olarak yorumlandı. (Hedef İrtifa: {target_alt}m)",
+                confidence=cmd.confidence,
+                raw_response=cmd.raw_response,
+                processing_time_ms=cmd.processing_time_ms
+            )
+
+        critical_actions = settings.safety.CRITICAL_CONFIRM_ACTIONS
         if cmd.action in critical_actions:
-            if not any(word in user_input.lower() for word in ["onayla", "onaylıyorum", "confirm", "force"]):
+            if not any(w in words for w in ["onayla", "onaylıyorum", "confirm", "force"]):
                 self._pending_critical_action = cmd
                 action_tr = "ACİL İNİŞ" if cmd.action == "emergency_land" else "MOTORLARI DURDURMA"
                 return ExecutionResult(
@@ -262,8 +291,8 @@ class CommandParser:
             "emergency_land": lambda: self._tools.emergency_land(),
             "motor_stop": lambda: self._tools.motor_stop(),
             "go_to": lambda: self._tools.go_to(
-                float(p.get("x", 0.0)),
-                float(p.get("y", 0.0)),
+                float(p.get("x", self._tools.state.x)),
+                float(p.get("y", self._tools.state.y)),
                 float(p.get("altitude", self._tools.state.altitude)),
             ),
         }
