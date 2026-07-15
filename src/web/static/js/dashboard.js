@@ -14,16 +14,16 @@
 
 // ── Sabitler ──────────────────────────────────────────────────────────────
 // ── Sabitler ──────────────────────────────────────────────────────────────
-let HOME_LAT  = 39.9334;   // Varsayılan Ankara referansı
-let HOME_LNG  = 32.8597;
+let HOME_LAT = 39.9334;   // Varsayılan Ankara referansı
+let HOME_LNG = 32.8597;
 const M_PER_LAT = 111320;    // 1 derece enlem ≈ 111320 metre
 
 // ── Durum ─────────────────────────────────────────────────────────────────
 let logCount = 0;
 let stats = { total: 0, success: 0, safety_rejected: 0, clarified: 0 };
 let droneMarker = null;
-let homeMarker  = null;
-let droneTrail  = [];
+let homeMarker = null;
+let droneTrail = [];
 let trailPolyline = null;
 let map = null;
 
@@ -53,7 +53,7 @@ function initMap() {
   });
   homeMarker = L.marker([HOME_LAT, HOME_LNG], { icon: homeIcon })
     .addTo(map)
-    .bindPopup('🏠 Başlangıç Noktası');
+    .bindPopup('Başlangıç Noktası');
 
   // Drone işareti (başlangıçta home'da)
   droneMarker = createDroneMarker(HOME_LAT, HOME_LNG, 0, 0);
@@ -78,12 +78,12 @@ function initMap() {
         map.setView([HOME_LAT, HOME_LNG], 17);
         homeMarker.setLatLng([HOME_LAT, HOME_LNG]);
         droneMarker.setLatLng([HOME_LAT, HOME_LNG]);
-        
+
         // Göstergeyi güncelle
         document.getElementById('map-coord').textContent =
           `${HOME_LAT.toFixed(5)}°N  ${HOME_LNG.toFixed(5)}°E`;
-          
-        showToast('📍 Canlı konum algılandı. Harita güncellendi.', 'success');
+
+        showToast('Canlı konum algılandı. Harita güncellendi.', 'success');
       },
       (error) => {
         console.log('Canlı konum alınamadı, Ankara varsayılan olarak kalıyor.', error);
@@ -110,7 +110,7 @@ function createDroneMarker(lat, lng, heading, altitude) {
     map.removeLayer(droneMarker);
   }
   const marker = L.marker([lat, lng], { icon }).addTo(map);
-  marker.bindPopup(`✈ Drone<br>İrtifa: ${altitude.toFixed(1)}m<br>Yön: ${heading.toFixed(0)}°`);
+  marker.bindPopup(`Drone<br>İrtifa: ${altitude.toFixed(1)}m<br>Yön: ${heading.toFixed(0)}°`);
   return marker;
 }
 
@@ -123,22 +123,22 @@ function metersToLatLng(x_east, y_north) {
 
 // ── Telemetri Güncelleme ───────────────────────────────────────────────────
 function updateTelemetry(data) {
-  const s  = data.state;
+  const s = data.state;
   const pos = s.position;
   const kin = s.kinematics;
-  const st  = s.status;
+  const st = s.status;
   const bat = data.battery_alert;
 
   // ─ Top bar
   document.getElementById('flight-mode').textContent = st.mode;
-  document.getElementById('tb-altitude').textContent  = `${pos.altitude.toFixed(1)}m`;
-  document.getElementById('tb-speed').textContent     = `${kin.speed.toFixed(1)} m/s`;
-  document.getElementById('tb-battery').textContent   = `%${st.battery.toFixed(0)}`;
+  document.getElementById('tb-altitude').textContent = `${pos.altitude.toFixed(1)}m`;
+  document.getElementById('tb-speed').textContent = `${kin.speed.toFixed(1)} m/s`;
+  document.getElementById('tb-battery').textContent = `%${st.battery.toFixed(0)}`;
 
   // Mode rengi
   const modePill = document.getElementById('flight-mode');
   modePill.className = 'mode-pill';
-  if (['TAKEOFF','NAVIGATING','RETURN_TO_HOME'].includes(st.mode)) modePill.classList.add('airborne');
+  if (['TAKEOFF', 'NAVIGATING', 'RETURN_TO_HOME'].includes(st.mode)) modePill.classList.add('airborne');
   if (st.mode === 'LANDING') modePill.classList.add('warning');
   if (st.mode === 'EMERGENCY') modePill.classList.add('emergency');
 
@@ -160,8 +160,8 @@ function updateTelemetry(data) {
   document.getElementById('alt-value').textContent = `${pos.altitude.toFixed(1)} m`;
 
   // ─ Konum
-  document.getElementById('pos-x').textContent   = `${pos.x >= 0 ? '+' : ''}${pos.x.toFixed(1)}m`;
-  document.getElementById('pos-y').textContent   = `${pos.y >= 0 ? '+' : ''}${pos.y.toFixed(1)}m`;
+  document.getElementById('pos-x').textContent = `${pos.x >= 0 ? '+' : ''}${pos.x.toFixed(1)}m`;
+  document.getElementById('pos-y').textContent = `${pos.y >= 0 ? '+' : ''}${pos.y.toFixed(1)}m`;
   document.getElementById('pos-hdg').textContent = `${kin.heading.toFixed(0)}°`;
   const home = s.home;
   document.getElementById('pos-home').textContent = `${home.distance_2d.toFixed(1)}m`;
@@ -185,13 +185,13 @@ function updateTelemetry(data) {
 
 // ── Komut Gönderme ─────────────────────────────────────────────────────────
 async function sendCommand() {
-  const input  = document.getElementById('cmd-input');
-  const btn    = document.getElementById('btn-send');
+  const input = document.getElementById('cmd-input');
+  const btn = document.getElementById('btn-send');
   const cmdTxt = input.value.trim();
   if (!cmdTxt) return;
 
   btn.disabled = true;
-  btn.textContent = '⏳ İşleniyor...';
+  btn.textContent = 'İşleniyor...';
 
   // Log'a ekle (bekliyor)
   addLogEntry('info', `→ ${cmdTxt}`, '...');
@@ -205,7 +205,7 @@ async function sendCommand() {
     const data = await resp.json();
     handleCommandResponse(cmdTxt, data);
   } catch (err) {
-    showToast('❌ Bağlantı hatası: ' + err.message, 'danger');
+    showToast('Bağlantı hatası: ' + err.message, 'danger');
     addLogEntry('danger', cmdTxt, 'Bağlantı hatası');
   } finally {
     btn.disabled = false;
@@ -216,11 +216,11 @@ async function sendCommand() {
 }
 
 function handleCommandResponse(cmdTxt, data) {
-  const parsed  = data.parsed || {};
+  const parsed = data.parsed || {};
   const outcome = data.outcome || (data.success ? 'SUCCESS' : 'FAILED');
 
   // ─ LLM Analiz kutusu
-  const llmBox  = document.getElementById('llm-box');
+  const llmBox = document.getElementById('llm-box');
   llmBox.style.display = 'block';
   document.getElementById('llm-action').textContent =
     `▶ ${(parsed.action || '?').toUpperCase()}  ${JSON.stringify(parsed.parameters || {})}`;
@@ -228,7 +228,7 @@ function handleCommandResponse(cmdTxt, data) {
     `Güven: %${((parsed.confidence || 0) * 100).toFixed(0)} | ${(parsed.processing_time_ms || 0).toFixed(0)}ms`;
   document.getElementById('llm-reasoning').textContent = parsed.reasoning || '';
   document.getElementById('llm-safety').textContent =
-    parsed.safety_note ? `⚠ ${parsed.safety_note}` : '';
+    parsed.safety_note ? `Güvenlik: ${parsed.safety_note}` : '';
 
   // ─ Sonuç kutusu
   const resultBox = document.getElementById('result-box');
@@ -249,8 +249,8 @@ function handleCommandResponse(cmdTxt, data) {
   updateStats();
 
   // ─ Toast
-  const icon = data.success ? '✅' : (outcome === 'SAFETY_REJECTED' ? '🛡️' : '❓');
-  showToast(`${icon} ${(data.message || '').substring(0, 80)}`, logClass);
+  const icon = data.success ? '' : (outcome === 'SAFETY_REJECTED' ? '[Red]' : '');
+  showToast(`${icon} ${(data.message || '').substring(0, 80)}`.trim(), logClass);
 }
 
 function quickCmd(text) {
@@ -261,12 +261,12 @@ function quickCmd(text) {
 // ── Log & İstatistik ───────────────────────────────────────────────────────
 function addLogEntry(type, command, message) {
   const stream = document.getElementById('log-stream');
-  const empty  = stream.querySelector('.log-empty');
+  const empty = stream.querySelector('.log-empty');
   if (empty) empty.remove();
 
   logCount++;
   const now = new Date();
-  const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
   const entry = document.createElement('div');
   entry.className = `log-entry ${type}`;
@@ -280,10 +280,10 @@ function addLogEntry(type, command, message) {
 }
 
 function updateStats() {
-  document.getElementById('st-total').textContent    = stats.total;
-  document.getElementById('st-success').textContent  = stats.success;
+  document.getElementById('st-total').textContent = stats.total;
+  document.getElementById('st-success').textContent = stats.success;
   document.getElementById('st-rejected').textContent = stats.safety_rejected;
-  document.getElementById('st-clarified').textContent= stats.clarified;
+  document.getElementById('st-clarified').textContent = stats.clarified;
 }
 
 // ── Toast Bildirimi ────────────────────────────────────────────────────────
@@ -305,7 +305,7 @@ async function saveReport() {
   try {
     const r = await fetch('/api/save_report');
     const d = await r.json();
-    showToast('💾 Rapor kaydedildi! HTML + JSON + CSV', 'success');
+    showToast('Rapor kaydedildi! HTML + JSON + CSV', 'success');
   } catch (e) {
     showToast('Kaydetme hatası: ' + e.message, 'danger');
   }
@@ -314,8 +314,8 @@ async function saveReport() {
 // ── Yardımcı ──────────────────────────────────────────────────────────────
 function escHtml(str) {
   return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 // ── Enter tuşu ────────────────────────────────────────────────────────────
@@ -342,14 +342,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   socket.on('auto_rth', (data) => {
-    showToast(`🔴 OTOMATİK RTH: ${data.message}`, 'danger');
+    showToast(`OTOMATİK RTH: ${data.message}`, 'danger');
     addLogEntry('danger', '(Otomatik RTH)', data.message);
   });
 
   socket.on('command_result', (data) => {
     // Sunucu tarafından tetiklenen komut sonucu
     document.getElementById('mf-status').textContent =
-      data.success ? '✅ Komut başarılı' : '❌ Komut başarısız';
+      data.success ? 'Komut başarılı' : 'Komut başarısız';
   });
 
   // İlk telemetri yükleme

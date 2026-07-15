@@ -166,7 +166,7 @@ class DroneTools:
                 success=False,
                 action="takeoff",
                 message=(
-                    f"❌ Kalkış reddedildi: Araç zaten havada "
+                    f"Kalkış reddedildi: Araç zaten havada "
                     f"(İrtifa: {self._state.altitude:.1f}m, Mod: {self._state.mode.value}). "
                     f"Önce iniş yapmanız gerekir."
                 ),
@@ -179,7 +179,7 @@ class DroneTools:
                 success=False,
                 action="takeoff",
                 message=(
-                    f"❌ Kalkış reddedildi: Batarya kritik seviyede "
+                    f"Kalkış reddedildi: Batarya kritik seviyede "
                     f"(%{self._state.battery:.1f} < %{cfg.MIN_BATTERY_OPERATION}). "
                     f"Şarj etmeden kalkış yapılamaz."
                 ),
@@ -210,7 +210,7 @@ class DroneTools:
             success=True,
             action="takeoff",
             message=(
-                f"✅ Kalkış tamamlandı. "
+                f"Kalkış tamamlandı. "
                 f"İrtifa: {target_altitude:.1f}m AGL | "
                 f"Mod: HOVERING | "
                 f"Batarya: %{new_state.battery:.1f}"
@@ -240,7 +240,7 @@ class DroneTools:
                 success=False,
                 action="land",
                 message=(
-                    f"❌ İniş reddedildi: Araç zaten yerde "
+                    f"İniş reddedildi: Araç zaten yerde "
                     f"(Mod: {self._state.mode.value})."
                 ),
                 state_before=state_before,
@@ -274,7 +274,7 @@ class DroneTools:
             success=True,
             action="land",
             message=(
-                f"✅ İniş tamamlandı. "
+                f"İniş tamamlandı. "
                 f"Konum: ({new_state.x:.1f}m, {new_state.y:.1f}m) | "
                 f"Mod: IDLE | "
                 f"Batarya: %{new_state.battery:.1f}"
@@ -305,7 +305,7 @@ class DroneTools:
             return ToolResult(
                 success=False,
                 action="return_to_home",
-                message="❌ RTH reddedildi: Araç zaten yerde.",
+                message="RTH reddedildi: Araç zaten yerde.",
                 state_before=state_before,
                 state_after=self._state.clone(),
             )
@@ -337,7 +337,7 @@ class DroneTools:
             success=True,
             action="return_to_home",
             message=(
-                f"✅ Eve dönüş tamamlandı. "
+                f"Eve dönüş tamamlandı. "
                 f"Kat edilen mesafe: {dist:.1f}m | "
                 f"Batarya: %{new_state.battery:.1f}"
             ),
@@ -373,7 +373,7 @@ class DroneTools:
                 success=False,
                 action="go_to",
                 message=(
-                    "❌ go_to reddedildi: Araç havada değil. "
+                    "go_to reddedildi: Araç havada değil. "
                     "Önce kalkış yapın."
                 ),
                 state_before=state_before,
@@ -404,7 +404,7 @@ class DroneTools:
             success=True,
             action="go_to",
             message=(
-                f"✅ Hedefe ulaşıldı. "
+                f"Hedefe ulaşıldı. "
                 f"Konum: ({x:.1f}m, {y:.1f}m) | "
                 f"İrtifa: {altitude:.1f}m | "
                 f"Mesafe: {dist:.1f}m | "
@@ -426,7 +426,7 @@ class DroneTools:
             return ToolResult(
                 success=False,
                 action="emergency_land",
-                message="❌ Acil iniş reddedildi: Araç zaten yerde.",
+                message="Acil iniş reddedildi: Araç zaten yerde.",
                 state_before=state_before,
                 state_after=self._state.clone(),
             )
@@ -449,7 +449,7 @@ class DroneTools:
         return ToolResult(
             success=True,
             action="emergency_land",
-            message="⚠️ ACİL İNİŞ TAMAMLANDI! Uçuş modu acil durum olarak işaretlendi.",
+            message="ACİL İNİŞ TAMAMLANDI. Uçuş modu acil durum olarak işaretlendi.",
             state_before=state_before,
             state_after=new_state.clone(),
         )
@@ -473,9 +473,9 @@ class DroneTools:
 
         was_in_air = state_before.in_air
         msg = (
-            "⚠️ MOTORLAR ACİL DÜŞÜŞ İLE KAPATILDI! Araç yere çakıldı!"
+            "MOTORLAR DURDURULDU. Araç havadayken durduruldu — serbest düşüş."
             if was_in_air else
-            "✅ Motorlar kapatıldı."
+            "Motorlar kapatıldı."
         )
 
         return ToolResult(

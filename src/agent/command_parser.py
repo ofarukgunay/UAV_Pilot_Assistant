@@ -132,7 +132,7 @@ class CommandParser:
                 user_input=user_input,
                 parsed_command=cmd,
                 final_message=(
-                    f"🔍 Açıklama gerekiyor\n"
+                    f"Açıklama gerekiyor\n"
                     f"   {cmd.clarification_question}"
                 ),
                 success=False,
@@ -143,7 +143,7 @@ class CommandParser:
                 user_input=user_input,
                 parsed_command=cmd,
                 final_message=(
-                    f"❌ Komut reddedildi\n"
+                    f"Komut reddedildi\n"
                     f"   Gerekçe: {cmd.reasoning}"
                 ),
                 success=False,
@@ -178,7 +178,7 @@ class CommandParser:
                 parsed_command=confirmed_cmd,
                 validation=validation,
                 tool_result=tool_result,
-                final_message=f"✅ [TEYİT EDİLDİ] {final_msg}",
+                final_message=f"[TEYİT EDİLDİ] {final_msg}",
                 success=tool_result.success if tool_result else False,
             )
 
@@ -190,9 +190,9 @@ class CommandParser:
                     user_input=user_input,
                     parsed_command=cmd,
                     final_message=(
-                        f"⚠️ GÜVENLİK UYARISI: KRİTİK İŞLEM\n"
+                        f"GÜVENLİK UYARISI: KRİTİK İŞLEM\n"
                         f"   Eylem: {action_tr} ({cmd.action})\n"
-                        f"   👉 Devam etmek için lütfen onaylayın: 'evet' veya 'onayla' yazın."
+                        f"   Devam etmek için onaylayın: 'evet' veya 'onayla' yazın."
                     ),
                     success=False,
                 )
