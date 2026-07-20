@@ -124,7 +124,7 @@ class LLMConfig:
     OLLAMA_MODEL: str = field(
         default_factory=lambda: os.getenv("OLLAMA_MODEL", "llama3")
     )
-    OLLAMA_TIMEOUT: int = 60               # saniye
+    OLLAMA_TIMEOUT: int = 120              # saniye (soğuk yükleme toleransı)
     # OpenAI
     OPENAI_API_KEY: str = field(
         default_factory=lambda: os.getenv("OPENAI_API_KEY", "")

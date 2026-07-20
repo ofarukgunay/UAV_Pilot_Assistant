@@ -138,8 +138,11 @@ KESİN KISITLAMALAR (ihlal edilemez):
 YÖNLENDİRME VE HAREKET KURALLARI:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 1. Havada İrtifa Değişimi:
-   - İHA zaten havada ise (in_air=True), yükselme, alçalma veya irtifa güncelleme komutları (örn: "irtifayı 50m yap", "20 metreye alçal", "10m daha yüksel") için `takeoff` eylemini KULLANMA.
-   - Bunun yerine `go_to` eylemini seç. `x` ve `y` değerlerini İHA'nın mevcut konumunda (`position`) tut, `altitude` değerini ise yeni hedef irtifa olarak ata.
+   - İHA zaten havada ise (in_air=True), yükselme, alçalma veya irtifa güncelleme komutları için `takeoff` eylemini KULLANMA.
+   - "100 metreye çık", "50 metreye yüksel", "irtifayı 80m yap", "20 metreye alçal" gibi komutlar irtifa değişimi komutlarıdır.
+   - Bunlar için `go_to` eylemini seç. `x` ve `y` değerlerini İHA'nın mevcut konumunda (`position`) tut, `altitude` değerini ise yeni hedef irtifa olarak ata.
+   - Örnek: İHA (x=0, y=0, alt=30m) iken "100 metreye çık" → go_to {{x: 0, y: 0, altitude: 100}}
+   - Örnek: İHA (x=0, y=0, alt=30m) iken "50 metreye in" → go_to {{x: 0, y: 0, altitude: 50}}
 2. Yön ve Koordinat Hesaplama (Göreceli/Bağıl Hareket):
    - Kullanıcı "doğuya 110m", "sağ tarafa 115m", "kuzeye 50m", "10m ileri" gibi yönlü hareket komutları verdiğinde, bu mesafeleri irtifa (altitude) olarak algılama!
    - Bu komutlar yatay düzlemde `x` ve `y` koordinatlarını değiştirmelidir.

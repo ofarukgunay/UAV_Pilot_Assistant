@@ -4,10 +4,8 @@ __pycache__/
 *$py.class
 *.so
 *.egg-info/
-*.egg
 dist/
 build/
-eggs/
 
 # Virtual Environment
 venv/
@@ -23,7 +21,7 @@ env/
 # Environment Variables
 .env
 
-# Logs (içerikler gitmesin, klasör kalsın)
+# Logs
 logs/*.json
 logs/*.csv
 logs/*.log
@@ -40,5 +38,8 @@ htmlcov/
 .coverage
 *.junit.xml
 
-# Proje dokümanı (repo'ya eklenmez)
+# Dokümanlar, Medya ve ZIP (repo'ya eklenmez)
 *.docx
+*.zip
+*.webp
+

@@ -171,36 +171,3 @@ git checkout -b feature/agent         # Agent geliştirirken
 git checkout -b feature/safety        # Güvenlik katmanı geliştirirken
 ```
 
----
-
-##  Teslim Kontrol Listesi
-
-Projeyi teslim etmeden önce aşağıdakilerin tamamlandığından emin ol:
-
-- [ ] Kaynak kod çalışıyor ve modüler yapıda
-- [ ] `README.md` güncel ve kurulum adımları doğru
-- [ ] En az 12 farklı doğal dil komutu ile test yapıldı
-- [ ] Test logları `logs/` klasöründe mevcut
-- [ ] `docs/technical_report.md` yazıldı (mimari, seçimler, güvenlik, test sonuçları)
-- [ ] 3-5 dakikalık demo videosu kaydedildi
-- [ ] Özgün ek özellik(ler) eklendi ve açıklandı (40 puan!)
-
----
-
-##  Sık Sorulan Sorular
-
-**S: Simülasyon olarak ne kullanmalıyım?**
-Python ile kendi yazdığın basit bir simülasyon yeterli. PX4/Gazebo/AirSim gibi karmaşık ortamlar isteğe bağlı.
-
-**S: LLM motor/PWM gibi düşük seviyeli fonksiyonlara erişmeli mi?**
-Hayır! LLM sadece `takeoff`, `land`, `return_to_home`, `go_to` gibi güvenli, yüksek seviyeli fonksiyonları çağırmalı. Son karar güvenlik katmanında verilmeli.
-
-**S: Özgünlük için ne yapabilirim?**
-Web arayüzü, sesli komut, batarya yönetimi, çok adımlı görev planlama, LLM karşılaştırması, otomatik senaryo üretici gibi fikirler değerlendirebilirsin. Detaylar için proje dokümanına bak.
-
-**S: Hangi Python sürümünü kullanmalıyım?**
-Python 3.10 veya üzeri önerilir. `match-case` gibi modern Python özelliklerinden faydalanabilirsin.
-
----
-
-> 📌 **İpucu:** Her fazı tamamladıktan sonra commit at. Küçük ve anlamlı commitler, projenin geliştirme sürecini gösterir.
