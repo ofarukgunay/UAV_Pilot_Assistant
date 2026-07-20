@@ -38,8 +38,16 @@ htmlcov/
 .coverage
 *.junit.xml
 
-# Dokümanlar, Medya ve ZIP (repo'ya eklenmez)
+# Dokümanlar, Medya ve ZIP (Git reposuna eklenmez)
 *.docx
 *.zip
-*.webp
 
+# Videolar ve Medya Dosyaları
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+*.gif
+*.webp
+demo_video.*
