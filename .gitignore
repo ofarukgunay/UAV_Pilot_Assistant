@@ -38,7 +38,7 @@ htmlcov/
 .coverage
 *.junit.xml
 
-# Dokümanlar, Medya ve ZIP (Git reposuna eklenmez)
+# Dokümanlar ve ZIP
 *.docx
 *.zip
 
